@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from flask_sqlalchemy import SQLAlchemy
 from slugify import slugify
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -64,3 +65,28 @@ class WalletAssetBalance(db.Model):
     btcsav = db.DecimalField(max_digits=19, decimal_places=8, default=0.0)
     usdtstake = db.DecimalField(max_digits=19, decimal_places=8, default=0.0)
     btcstake = db.DecimalField(max_digits=19, decimal_places=8, default=0.0)
+
+class CryptoBotSettings(db.Model):
+    api_key = db.Column(db.String(100), nullable=True)
+    api_secret = db.Column(db.String(100), nullable=True)
+    SECRET_KEY = db.Column(db.String(100), nullable=True)
+    mysql_host = db.Column(db.GenericIPAddressField(), nullable=True)
+    mysql_db_name = db.Column(db.String(100), nullable=True)
+    mysql_user = db.Column(db.String(100), nullable=True) 
+    mysql_pwd = db.Column(db.String(100), nullable=True)
+
+
+class Ohlcv(db.Model):
+    coin = db.Column(db.String(15), db.ForeignKey('coinlist.coin'), nullable=False)
+    date = db.Column(db.DateTime(), default=datetime.datetime.now)
+    open = db.Column(db.Decimal(36, 18), nullable=True)
+    high = db.Column(db.Decimal(36, 18), nullable=True)
+    low = db.Column(db.Decimal(36, 18), nullable=True)
+    close = db.Column(db.Decimal(36, 18), nullable=True)
+    volume = db.Column(db.Decimal(36, 18), nullable=True)
+    num_trades = db.Column(db.Decimal(36, 18), nullable=True)
+    taker_base_vol = db.Column(db.Decimal(36, 18), nullable=True)
+    taker_quote_vol = db.Column(db.Decimal(36, 18), nullable=True)
+
+    def __str__(self):
+        return "{}".format(self.coin)
