@@ -1,12 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import ValidationError
+from wtforms import StringField, IntegerField
+from wtforms.validators import InputRequired, ValidationError
 from .models import CoinList, BinanceSymbolList, WalletAssetList, WalletAssetBalance, CryptoBotSettings
 
-
 class CoinListAddForm(FlaskForm):
-    coin = StringField('Coin', render_kw={"placeholder": "ex. BTCUSDT"})
-    submit = SubmitField('Add Coin')
+    coin = StringField("Coin", validators=[InputRequired()], render_kw={"placeholder": "ex. BTCUSDT"})
 
     def validate_coin(self, field):
         data = field.data
@@ -17,10 +15,8 @@ class CoinListAddForm(FlaskForm):
         if CoinList.query.filter_by(coin=data).first():
             raise ValidationError(f"Coin {data} has already been added")
 
-
 class CoinListDelForm(FlaskForm):
-    coin = StringField('Coin', render_kw={"placeholder": "ex. ADAUSDT"})
-    submit = SubmitField('Delete Coin')
+    coin = StringField("Coin", validators=[InputRequired()], render_kw={"placeholder": "ex. ADAUSDT"})
 
     def validate_coin(self, field):
         data = field.data
@@ -29,38 +25,29 @@ class CoinListDelForm(FlaskForm):
             field.data = data
         if CoinList.query.filter_by(coin=data).first():
             CoinList.query.filter_by(coin=data).delete()
-            db.session.commit()
         else:
             raise ValidationError(f"Cryptocurrency pair {field.data} not found")
 
-
 class UpdateBnSymbolForm(FlaskForm):
-    symbol = StringField('Symbol')
-    submit = SubmitField('Update')
-
+    symbol = StringField("Symbol")
 
 class UpdateWalletAssetForm(FlaskForm):
-    asset = StringField('Asset')
-    free = StringField('Free')
-    locked = StringField('Locked')
-    ownusdt = StringField('Own USDT')
-    ownbtc = StringField('Own BTC')
-    submit = SubmitField('Update')
-
+    asset = StringField("Asset")
+    free = IntegerField("Free")
+    locked = IntegerField("Locked")
+    ownusdt = IntegerField("Ownusdt")
+    ownbtc = IntegerField("Ownbtc")
 
 class UpdateWalletBalanceForm(FlaskForm):
-    usdtbal = StringField('USDT Balance')
-    btcbal = StringField('BTC Balance')
-    submit = SubmitField('Update')
-
+    usdtbal = IntegerField("Usdtbal")
+    btcbal = IntegerField("Btcbal")
 
 class UpdateCryptoBotSettingsForm(FlaskForm):
-    api_key = StringField('API Key')
-    api_secret = StringField('API Secret')
-    secret_key = StringField('Secret Key')
-    submit = SubmitField('Update')
+    api_key = StringField("API Key")
+    api_secret = StringField("API Secret")
+    SECRET_KEY = StringField("Secret Key")
 
     def validate(self):
         if CryptoBotSettings.query.first():
-            raise ValidationError('You cannot add more somethings.')
-        return super(UpdateCryptoBotSettingsForm, self).validate()
+            raise ValidationError("You cannot add more somethings.")
+        return super().validate()
