@@ -1,0 +1,138 @@
+{% extends 'homepage.html' %}
+{% block coin_list %}
+
+<style>
+   .ui-autocomplete {
+     max-height: 300px;
+     overflow-y: auto;
+     /* prevent horizontal scrollbar */
+     overflow-x: hidden;
+   }
+   /* IE 6 doesn't support max-height
+    * we use height instead, but this forces the menu to always be this tall
+    */
+   * html .ui-autocomplete {
+     height: 300px;
+   }
+   </style>
+
+<div class="container-fluid"  style="margin-top:80px">
+   <div class="row align-items-start">
+      <div class="col">
+         <h3 class="text-left">Coin managed</h3>
+         <table class="table table-sm table-hover">
+            <thead>
+               <tr class="d-flex">
+                  <th class="col-4" scope="col">Coin list</th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for coin in coinlist %}
+               <tr>
+                  <td><a class="text-reset" href="dashboard/{{ coin }}">{{ coin }}</a></td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+      <div class="col">
+         <h3>Add a pair</h3>
+         <form method="POST" id="coinadd" action="{% url 'ManageCoinAddView' %}">
+            <div class="mb-3 mt-3">
+               <label for="coin">Coin name</label>
+               {% csrf_token %}
+               <input type="text" class="form-control" id="coin" placeholder="ex. BTCUSDT" name="coin" required>
+            </div>
+            <button type="submit" name="coinadd" class="btn btn-primary">Submit</button>
+         </form>
+         <br>
+         {% if show_text %}
+         <div class="alert alert-success alert-dismissible fade show container">
+            <strong>Success!</strong> Cryptocurrency pair {{ request.POST.coin|upper }} has been added successfully.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+         </div>
+         {% endif %}
+         {% if addform.errors %}
+         {% for error in addform.non_field_errors %}
+         <div class="alert alert-danger alert-dismissible fade show container">
+            <strong>{{ error|escape }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+         </div>
+         {% endfor %}
+         {% endif %}            
+         <div class="mb-3 mt-3 border text-left">
+            <h5>Binance list</h5>	
+            <p class="text-start text-decoration-underline">The are currently <b>{{ symbolist | length}}</b> pair listed<br>
+            </p>
+            <form method="POST" action={% url 'UpdateBinanceSymbol' %}>
+               {% csrf_token %} 
+             <button type="submit" id="symbol"  name="symbol" class="btn btn-primary">Update</button>
+            </form>
+         </div>
+         {% if list_updated %}
+         <div class="alert  alert-info alert-dismissible fade show container">
+            <strong>Info!</strong> List already updated ;)
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+         </div>
+         {% endif %}
+         {% if show_list_text %}
+         <div class="alert alert-success alert-dismissible fade show container">
+            <strong>Success!</strong> List updated successfully
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+         </div>
+         {% endif %}
+
+
+         
+      </div>
+      <div class="col">
+         <h3>Delete a pair</h3>
+         <form method="POST" id="coindelform" action={% url 'ManageCoinDelView' %}>
+            <div class="mb-3 mt-3">
+              <label for="coindel">Coin name:</label>
+              
+              {% csrf_token %}
+              <input type="text" class="form-control" id="coindel" placeholder="ex. ADAUSDT" name="coindel" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+          <br>
+          {% if show_del_text %}
+          <div class="alert alert-success alert-dismissible fade show container">
+             <strong>Success!</strong> Coin {{ request.POST.coin|upper }} deleted successfully
+             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          {% endif %}
+          {% if delform.errors %}
+          {% for error in delform.non_field_errors %}
+          <div class="alert alert-danger alert-dismissible fade show container">
+             <strong>{{ error|escape }}</strong>
+             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          {% endfor %}
+          {% endif %}
+          <div class="mb-3 mt-3 border text-left">
+            <h5>CryptoBot list</h5>	
+            <p class="text-start text-decoration-underline">The are currently <b>{{ coinlist | length}}</b> pair manage by CryptoBot
+            </p>
+            <br>
+         </div>  
+      </div>
+   </div>
+</div>
+<script>
+   $(function() {
+   $("#coin").autocomplete({
+     source: "{% url 'autocompleteAdd' %}",
+     minLength: 2,
+     autoFocus: true
+   });
+   $( "#coindel" ).autocomplete({
+           source: "{% url 'autocompleteDel' %}",
+           minLength: 2,
+           autoFocus: true
+       });
+   });
+</script>
+
+{% endblock coin_list %}
